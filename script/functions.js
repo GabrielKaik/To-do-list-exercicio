@@ -1,62 +1,116 @@
- 
- function criarCampo(elementoPai, campo, tipoCampo, texto) //elemento pai > div na qual o campo vai ficar dentro
-            {                                                     //campo → tipo de elemento a ser criado (ex: 'input', 'button', 'span')
-                let pai = document.getElementById(elementoPai);   // - tipoCampo → tipo do campo (ex: 'text', 'checkbox', etc.) [opcional]
-                let novaDiv = document.createElement('div');      // - texto → texto que será exibido ao lado do campo
-                
-                let novoCampo = document.createElement(campo);
-                if (tipoCampo) novoCampo.type = tipoCampo;
-                
-                let spanTexto = document.createElement('span');
-                spanTexto.textContent = texto;  
-
-                novaDiv.appendChild(novoCampo);
-                novaDiv.appendChild(spanTexto)
-                pai.appendChild(novaDiv);
-            }
-
-        const botaoTeste = document.getElementById('botao-teste');
-        botaoTeste.addEventListener('click', () => criarCampo("classTeste", 'span',null , "Campo adicionado dinamicamente"));
-
-    
-/////////////////////////////////////////////////////////////////////////////////////////////
+// VARIÁVEIS GLOBAIS
+let tarefas = [];
+let tarefasFeitas = 0;
 
 const submitButton = document.getElementById('botaoSubmit');
-        submitButton.addEventListener('click', function(event) 
-            {
-                event.preventDefault();
-                
-                let elementoPai = document.getElementById('listaTarefas');
-                let conteudo = document.getElementById('tarefa').value;
+const contadorSpan = document.getElementById('contador-span');
 
-                let novaDiv = document.createElement('div'); //Cria uma div dentro do card Checklist
-                let novoCampo = document.createElement('input'); //Cria um campo checkbox
-                novoCampo.type="checkbox";
-                
-                let texto = document.createElement('span');
-                texto.textContent = conteudo;
 
-                let criarBotao = document.createElement('button');
-                criarBotao.textContent = "Excluir";
-                criarBotao.classList.add('botao-excluir');
+// LOCAL STORAGE
+function salvarLocalStorage() {
+    localStorage.setItem("tarefas", JSON.stringify(tarefas));
+}
 
-                    criarBotao.addEventListener('click', function() 
-                    {
-                    const resposta = confirm('Deseja excluir a tarefa? Será permanente.');
+function carregarTarefas() {
+    const dados = localStorage.getItem("tarefas");
 
-                    if (resposta)
-                    {
-                        novaDiv.remove(); // remove a div da tarefa
-                    }
-                    
-                    });
-                
-                novaDiv.classList.add('classe-dinamica');
+    if (dados) {
+        tarefas = JSON.parse(dados);
 
-                novaDiv.appendChild(novoCampo);
-                novaDiv.appendChild(texto);
-                novaDiv.appendChild(criarBotao);
-                elementoPai.appendChild(novaDiv);
-            });
-        ;
+        tarefas.forEach(tarefa => {
+            criarTarefaNaTela(tarefa.texto, tarefa.concluida);
+        });
 
+        contadorSpan.textContent = `Tarefas concluídas: ${tarefasFeitas}`;
+    }
+}
+
+
+// CRIAR TAREFA NA TELA
+function criarTarefaNaTela(textoTarefa, concluida = false) {
+    const elementoPai = document.getElementById('listaTarefas');
+
+    const novaDiv = document.createElement('div');
+    novaDiv.classList.add('classe-dinamica');
+
+    const checkbox = document.createElement('input');
+    checkbox.type = "checkbox";
+    checkbox.checked = concluida;
+
+    const texto = document.createElement('span');
+    texto.textContent = textoTarefa;
+
+    const botaoExcluir = document.createElement('button');
+    botaoExcluir.textContent = "Excluir";
+    botaoExcluir.classList.add('botao-excluir');
+
+    // Estado inicial
+    if (concluida) {
+        texto.classList.add('texto-riscado');
+        tarefasFeitas++;
+    }
+
+    // Checkbox
+    checkbox.addEventListener('change', function () {
+        texto.classList.toggle('texto-riscado');
+        tarefasFeitas += checkbox.checked ? 1 : -1;
+
+        const tarefa = tarefas.find(t => t.texto === textoTarefa);
+        if (tarefa) {
+            tarefa.concluida = checkbox.checked;
+            salvarLocalStorage();
+        }
+
+        contadorSpan.textContent = `Tarefas concluídas: ${tarefasFeitas}`;
+    });
+
+    // Botão excluir
+    botaoExcluir.addEventListener('click', function () {
+        const resposta = confirm('Deseja excluir a tarefa?');
+
+        if (resposta) {
+            if (checkbox.checked) {
+                tarefasFeitas--;
+            }
+
+            tarefas = tarefas.filter(t => t.texto !== textoTarefa);
+            salvarLocalStorage();
+
+            novaDiv.remove();
+            contadorSpan.textContent = `Tarefas concluídas: ${tarefasFeitas}`;
+        }
+    });
+
+    novaDiv.appendChild(checkbox);
+    novaDiv.appendChild(texto);
+    novaDiv.appendChild(botaoExcluir);
+    elementoPai.appendChild(novaDiv);
+}
+
+
+// SUBMIT
+submitButton.addEventListener('click', function (event) {
+    event.preventDefault();
+
+    const input = document.getElementById('tarefa');
+    const conteudoDigitado = input.value.trim();
+
+    if (conteudoDigitado === "") {
+        alert("Esse campo está vazio!!");
+        return;
+    }
+
+    tarefas.push({
+        texto: conteudoDigitado,
+        concluida: false
+    });
+
+    salvarLocalStorage();
+    criarTarefaNaTela(conteudoDigitado, false);
+
+    contadorSpan.textContent = `Tarefas concluídas: ${tarefasFeitas}`;
+    input.value = "";
+});
+
+// INICIALIZAÇÃO
+carregarTarefas();

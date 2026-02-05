@@ -1,15 +1,23 @@
+.secao-geral
+{
+    display: flex;
+    justify-content: center;
+}
+
+
 body
 {
-    background-color: #9c9fc7;
+    background-color: #dff5f9;
     font-family: "Bebas Neue";
 }
 
 
 .card {
-    background-color: rgb(248, 250, 252);
+    background-color: #bde0fe;
     display: flex;
     flex-direction: column; /* muda o fluxo para coluna */
     align-items: stretch; 
+    justify-content: center;
     padding: 2em; /* adiciona espaço interno */
     margin: 5em 10em;
     border-radius: 10px;
@@ -17,7 +25,7 @@ body
     width: 40%;
     max-width: 900px; /* opcional: limita a largura do card */
     min-width: 40px;
-    box-shadow: 2px 2px 2px 2px #747272;
+    box-shadow: 22px 45px 40px 15px #545c7a;
 }
 
 .checklist
@@ -56,6 +64,7 @@ body
 .botao-enviar:hover
 {
     background-color: rgb(57, 59, 163);
+    cursor: pointer;
 }
 
 .botao-excluir
@@ -76,11 +85,35 @@ body
     margin: 10px;
 }
 
-.classe-dinamica
+.botao-excluir:hover
+{
+    background-color: rgb(168, 13, 13);
+    cursor: pointer;
+    transform: scale(115%);
+}
+
+.botao-excluir-tudo
+{
+    background-color: rgb(77, 114, 196);
+    color:white;
+    margin-bottom:15px;
+}
+
+.classe-dinamica    
 {
     display: flex;
     flex-direction: row;
     align-items: center;
     margin: 2px;
     
+}
+
+.texto-riscado
+{
+    text-decoration: line-through;
+}
+
+h2
+{
+    color:#023047;
 }
